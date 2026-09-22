@@ -3356,6 +3356,41 @@ shipped instead with a before/after delta bound (`1 <= delta <= 2`, one settle's
 per fling rather than a literal zero), the same upper bound this section's own settled-state check
 already accepts and for the identical reason.
 
+## A drag does not survive a workspace switch
+
+Reported on 2026-09-22 as "dragging a file from Flea into Claude does not paste the path", and measured
+on the operator's box rather than reasoned about: Flea 0.3.1 as packaged, Hyprland 0.56.2 at
+`efb5099`, ghostty 1.3.1 as the drop target, a uinput pointer for the gesture and a screenshot of the
+target after every release. The payload is not the defect. `ui/js/Drag.js` `mimeFor` offers
+`text/uri-list` and `text/plain`, Qt 6.11's `QQuickDragAttachedPrivate::createMimeData` turns those
+into `setUrls` and `setText`, and ghostty's drop target takes a `GdkFileList` first and pastes each
+path shell-escaped. Three drags, one row each, same window:
+
+| Case | Result |
+|---|---|
+| Flea and the terminal on one monitor and one workspace | the path landed |
+| Flea on HDMI-A-2, the terminal on HDMI-A-1, both on screen | the path landed |
+| the terminal on a workspace not on screen, SUPER+2 pressed mid-drag to reach it | nothing landed |
+
+**The third case is Hyprland's, and it is by construction.** `src/output/Monitor.cpp:1454-1458` at
+v0.56.2, `CMonitor::changeWorkspace`, calls `g_pInputManager->releaseAllMouseButtons()` on every
+workspace change that is not internal. Wayland drag and drop ends on the button release, so the drag
+is over before the pointer reaches anything, and the file lands on whatever was under it at that
+instant or nowhere. Nothing in the window is consulted: after `Drag.active = true` in
+`ui/FileDrag.qml` the compositor owns the gesture and Flea only ever answers data requests. The same
+release hits Nautilus and Chromium. Hyprland issue #15994 reports that exact call, closed by the bot
+and moved to discussion #15995. The answer for a user is to bring the target workspace up before the
+lift, which is why the README says so and points here.
+
+**Two things a reproduction will meet.** ghostty pastes the path plus a newline, and with no
+bracketed paste on the terminal, a bare `cat` for instance, its paste protection raises "Warning:
+Potentially Unsafe Paste" over the text instead of pasting it; a bracketed-paste program, Claude Code
+under Luvus here, gets it silently. And two presses at `rowCentre 0` off the IPC seam, in a window
+with two tabs open, started nothing: the screenshot put them on the column header, above the row that
+drew, and that read as a failed drag until the screenshot said otherwise. The window was closed before
+the offset was measured, so this is an observation and not a defect report: press on a row the
+screenshot has shown, and read the target after every release.
+
 ## Backend memory levers that were measured and dropped
 
 Measured on 2026-08-30 by Plan 5's Task 5b, warm, against a backend driven over its own wire with

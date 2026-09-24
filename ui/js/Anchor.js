@@ -31,6 +31,10 @@ function manual(pane) {
         pane.message("Finish or cancel the rename first.", false)
         return null
     }
+    if (pane.collide && pane.collide.pending !== null) {
+        pane.message("Choose what to do about the existing files first.", false)
+        return null
+    }
     if (pane.searchMode === Search.RESULTS) {
         if (pane.searchRunning)
             pane.message("The search is still running.", false)
@@ -46,10 +50,6 @@ function manual(pane) {
     // or a collision card still waiting on its answer names a row by index, and would get another file.
     if (pane.renamePending) {
         pane.message("Rename is still finishing.", false)
-        return null
-    }
-    if (pane.collide && pane.collide.pending !== null) {
-        pane.message("Choose what to do about the existing files first.", false)
         return null
     }
     return anchoredRefresh(pane, false)

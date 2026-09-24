@@ -283,6 +283,16 @@ function run(check) {
           (Anchor.manual(results) === null) + "|" + results.sent.join(","), "true|search /home/gm a.rs")
     check("and keeps where the search began", results.searchFrom, "/home/gm/Code")
     results.sent = []
+    results.searchRunning = false
+    results.collide = { pending: { c: "transfer" } }
+    var resultRows = results.rows
+    check("F5 preserves search rows while a collision answer is pending",
+          (Anchor.manual(results) === null) + "|" + results.sent.length + "|"
+          + (results.rows === resultRows) + "|" + results.said.join(""),
+          "true|0|true|Choose what to do about the existing files first.")
+    results.collide.pending = null
+    results.said = []
+    results.sent = []
     results.searchRunning = true
     check("F5 over a search still walking sends nothing and says why",
           (Anchor.manual(results) === null) + "|" + results.sent.length + "|" + results.said.join(""),

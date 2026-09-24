@@ -247,7 +247,8 @@ the same anchored re-read, and of everything `busy()` waits for it lifts only th
 clears rather than re-points. That makes it how a network mount, or a listing held behind a selection,
 is read again in place. A rename still finishing or a collision card still open refuses it with a
 sentence, because each answer still to come names a row by index, and search results re-run their
-query. It is the window's alone, because the terminal interface has no refresh case yet.
+query. The empty-space menu's Refresh row is the same action. It is the window's alone, because the
+terminal interface has no refresh case yet.
 `IN_MODIFY` is deliberately not in the mask: it fires on every `write(2)` and a listing does not draw
 a partial size, so a row's size follows `IN_CLOSE_WRITE` instead.
 

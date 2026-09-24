@@ -1113,15 +1113,14 @@ exactly once, and a type nobody matches on twice would be ceremony.
 
 `--tui` and `--gui` are mutually exclusive; giving both is a usage error naming the conflict,
 never a coin flip. With neither flag the window is the default, including when both handles are
-a terminal, so a bare `flea` typed at a shell opens the window. `--tui` is the only route to the
-terminal interface in `src/tui`, which `tui::run` starts on the same start path and `--select` the
-window takes, and it is the only mode that reads the tty at all: `main.rs` computes the
-`is_terminal()` pair one line above the `if want_tui` that is its only reader, so no other mode can
+a terminal, so a bare `flea` typed at a shell opens the window. The terminal implementation in
+`src/tui` is experimental and unfinished, and is not ready for supported use. Its user-facing
+documentation is intentionally deferred until it is ready. `--tui` is its only entry point,
+and the only mode that reads the tty at all: `main.rs` computes the `is_terminal()` pair one line
+above the `if want_tui` that is its only reader, so no other mode can
 consult it even by accident. It requires both stdin and stdout to be a real terminal, not just one,
-so the interface cannot write escape codes into a pipeline. `flea | head` gives stdin a tty and
-stdout a pipe, so an explicit `--tui` there refuses with `flea: the terminal interface needs a
-terminal on stdin and stdout` and exits 2. A window launch without a non-empty `WAYLAND_DISPLAY` or
-`DISPLAY` refuses rather than trying and failing inside `qs`.
+so the interface cannot write escape codes into a pipeline. A window launch without a non-empty
+`WAYLAND_DISPLAY` or `DISPLAY` refuses rather than trying and failing inside `qs`.
 
 `./tests/modes.sh` checks both no-flag shapes: redirected handles exercise the launcher path and
 `script` from the hard `util-linux` dependency gives the child a real pty on both handles, pinning
@@ -2311,9 +2310,9 @@ array with no preset of its own, so a cap it draws for a Mac-only chord would be
 its readers the moment the toggle moved. `tests/js/keymap.js` resolves the whole sheet under both
 presets and fails if any row answers differently.
 
-The tool emits JavaScript only, and the terminal interface needs no second output:
-`src/tui/keymap.rs` embeds `keys.toml` with `include_str!` and parses it itself, so a row reaches
-both front ends unless its `frontend` names one of them.
+The tool emits JavaScript only. The experimental terminal implementation in `src/tui/keymap.rs`
+embeds `keys.toml` with `include_str!` and parses it itself; it has no generated Rust keymap.
+Its preset lookup skips rows marked `frontend = "gui"`.
 
 ## Testing
 

@@ -27,6 +27,10 @@ function watched(pane) {
 // server raises no inotify event here. The selection is cleared the way every new listing clears it,
 // never re-pointed. Search results run their query again, since what they list is a walk.
 function manual(pane) {
+    if (pane.renameEditor() !== null) {
+        pane.message("Finish or cancel the rename first.", false)
+        return null
+    }
     if (pane.searchMode === Search.RESULTS) {
         if (pane.searchRunning)
             pane.message("The search is still running.", false)

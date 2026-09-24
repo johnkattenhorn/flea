@@ -1,5 +1,7 @@
 .import "../../ui/js/Anchor.js" as Anchor
 .import "../../ui/js/Nav.js" as Nav
+.import "../../ui/js/Focus.js" as Focus
+.import "../../ui/js/Menu.js" as Menu
 
 // Issue 68's watched re-read: a change another program made under the open listing is read again
 // without moving the user off the file they were on. Its own suite because tests/js/nav.js sits at
@@ -30,6 +32,7 @@ function pane() {
         sent: []
     }
     p.clearSelection = function () { p.cleared += 1 }
+    p.renameEditor = function () { return null }
     p.message = function (text, isError) { p.said.push(text) }
     p.listArea = { primeSettle: function () {} }
     // ui/PaneSwap.qml with nothing held, so the reset and the query it hands back both run at the request.
@@ -243,6 +246,27 @@ function run(check) {
     check("F5 while a rename is finishing sends nothing and says why",
           (Anchor.manual(renaming) === null) + "|" + renaming.sent.length + "|" + renaming.said.join(""),
           "true|0|Rename is still finishing.")
+    // Menu actions bypass the keyboard's live-editor guard, including over search results.
+    var refresh = Menu.backgroundEntries({}).filter(function (row) { return row.action === "refresh" })[0]
+    for (var mode of ["", "results"]) {
+        var editing = watched(0, [{ n: "a" }], 0)
+        var editor = { text: "unfinished name" }
+        editing.searchMode = mode
+        editing.searchQuery = "a"
+        editing.searchFrom = editing.path
+        editing.home = editing.path
+        editing.renamePending = false
+        editing.renamingIndex = 0
+        editing.renameEditor = function () { return editing.renamingIndex >= 0 ? editor : null }
+        editing.refreshListing = function () { Anchor.manual(editing) }
+        editing.backend.search = function () { editing.sent.push("search") }
+        Focus.act(refresh.action, editing)
+        check("background Refresh preserves a live rename in " + mode,
+              editing.renameEditor() === editor && editor.text === "unfinished name", true)
+        check("background Refresh sends nothing and explains the live rename in " + mode,
+              editing.sent.length + "|" + editing.cleared + "|" + editing.said.join(""),
+              "0|0|Finish or cancel the rename first.")
+    }
     var clash = watched(0, [{ n: "a" }], 0)
     clash.collide = { pending: { c: "transfer" } }
     check("F5 while the card asks about existing files sends nothing and says why",

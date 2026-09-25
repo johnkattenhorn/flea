@@ -2,7 +2,7 @@
 
 The refresh review fix for [PR #197](https://github.com/thisisgm/flea/pull/197) preserves an open rename editor through context-menu focus changes. Refresh refuses while the editor is open or a collision decision is pending, including in search results.
 
-Run `tests/refresh-menu.sh` for the real QML menu/editor focus regression, `tests/js.sh watch` for the refresh and collision guards, and `tests/run-all.sh` for the headless battery. Set `FLEA_FIXTURE_ROOT` to a writable fixture directory outside the home directory on machines without `/home/flea-sandbox`.
+Run `tests/refresh-menu.sh` for the real QML menu/editor focus regression, `tests/js.sh refresh` for the refresh and collision guards, and `tests/run-all.sh` for the headless battery. Set `FLEA_FIXTURE_ROOT` to a writable fixture directory outside the home directory on machines without `/home/flea-sandbox`.
 
 The native `tests/ui.sh refresh` check requires `omarchy-drive`. Open review work is listed by `gh pr view 197 --repo thisisgm/flea --comments`.
 

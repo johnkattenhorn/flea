@@ -31,8 +31,15 @@ function manual(pane) {
         pane.message("Finish or cancel the rename first.", false)
         return null
     }
+    // Of what busy() waits for, the selection is the only hold that is the operator's to lift: a rename
+    // or a collision card still waiting on its answer names a row by index, and would get another file.
+    // Both hold ahead of search results too, because running the query again replaces those rows.
     if (pane.collide && pane.collide.pending !== null) {
         pane.message("Choose what to do about the existing files first.", false)
+        return null
+    }
+    if (pane.renamePending) {
+        pane.message("Rename is still finishing.", false)
         return null
     }
     if (pane.searchMode === Search.RESULTS) {
@@ -44,12 +51,6 @@ function manual(pane) {
     }
     if (pane.listInFlight) {
         pane.message("A directory is already loading.", false)
-        return null
-    }
-    // Of what busy() waits for, the selection is the only hold that is the operator's to lift: a rename
-    // or a collision card still waiting on its answer names a row by index, and would get another file.
-    if (pane.renamePending) {
-        pane.message("Rename is still finishing.", false)
         return null
     }
     return anchoredRefresh(pane, false)

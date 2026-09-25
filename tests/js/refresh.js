@@ -73,6 +73,14 @@ function run(check) {
           "true|0|true|Choose what to do about the existing files first.")
     results.collide.pending = null
     results.said = []
+    // A committed rename keeps its request after its row scrolls out and the editor goes with it.
+    results.renamePending = true
+    check("F5 preserves search rows while a rename is finishing",
+          (Anchor.manual(results) === null) + "|" + results.sent.length + "|"
+          + (results.rows === resultRows) + "|" + results.said.join(""),
+          "true|0|true|Rename is still finishing.")
+    results.renamePending = false
+    results.said = []
     results.sent = []
     results.searchRunning = true
     check("F5 over a search still walking sends nothing and says why",

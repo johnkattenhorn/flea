@@ -61,6 +61,7 @@ ShellRoot {
         onTriggered: {
             for (var mode of ["", "results"]) {
                 pane.searchMode = mode
+                pane.said = ""
                 pane.editing = true
                 editor.begin()
                 editor.inputItem.text = "unfinished name.txt"
